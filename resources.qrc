@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/Desirelines" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
