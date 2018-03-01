@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>589</width>
-    <height>710</height>
+    <height>719</height>
    </rect>
   </property>
   <property name="floating">
@@ -46,6 +46,13 @@
           </widget>
          </item>
          <item row="1" column="0">
+          <widget class="QPushButton" name="pushButton_5">
+           <property name="text">
+            <string>Select Extent</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
           <widget class="QPushButton" name="pushButton_4">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">

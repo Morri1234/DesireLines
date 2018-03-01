@@ -26,6 +26,9 @@ import os
 from PyQt4 import QtGui, uic
 from PyQt4.QtCore import pyqtSignal
 from . import utility_functions as uf
+from qgis.core import QgsMapLayerRegistry
+import processing
+
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'Desire_lines_dockwidget_base.ui'))
@@ -51,6 +54,7 @@ class DesirelinesDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.legend = self.iface.legendInterface()
 
         self.create = self.pushButton_4
+        self.selectextent = self.pushButton_5
         self.selectLayer = self.comboBox
         self.firstMeasure = self.comboBox_2
         self.firstCheck = self.checkBox
@@ -67,6 +71,60 @@ class DesirelinesDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.saveLocation = self.pushButton_3
 
         self.updateLayer()
+        self.initialisations()
+
+        QgsMapLayerRegistry.instance().legendLayersAdded.connect(self.updateLayer)
+        QgsMapLayerRegistry.instance().layersRemoved.connect(self.updateLayer)
+        QgsMapLayerRegistry.instance().layersRemoved.connect(self.initialisations)
+
+        self.selectextent.clicked.connect(self.selectByRadius)
+        self.create.clicked.connect(self.activateButtons)
+        self.create.clicked.connect(self.saveSelection)
+
+    def initialisations(self):
+        if self.selectLayer.count() == 0:
+            self.selectextent.setEnabled(False)
+            self.create.setEnabled(False)
+            self.selectextent.setEnabled(False)
+            self.selectLayer.setEnabled(False)
+            self.firstMeasure.setEnabled(False)
+            self.firstCheck.setEnabled(False)
+            self.firstSpinBox.setEnabled(False)
+            self.secondMeasure.setEnabled(False)
+            self.secondCheck.setEnabled(False)
+            self.secondSpinBox.setEnabled(False)
+            self.applyThreshold.setEnabled(False)
+            self.interval.setEnabled(False)
+            self.top.setEnabled(False)
+            self.bottom.setEnabled(False)
+            self.applySymbology.setEnabled(False)
+            self.savelocationText.setEnabled(False)
+            self.saveLocation.setEnabled(False)
+
+
+        else:
+            self.selectextent.setEnabled(True)
+            self.create.setEnabled(True)
+            self.selectextent.setEnabled(True)
+            self.selectLayer.setEnabled(True)
+
+
+
+    def activateButtons(self):
+        self.selectextent.setEnabled(True)
+        self.firstMeasure.setEnabled(True)
+        self.firstCheck.setEnabled(True)
+        self.firstSpinBox.setEnabled(True)
+        self.secondMeasure.setEnabled(True)
+        self.secondCheck.setEnabled(True)
+        self.secondSpinBox.setEnabled(True)
+        self.applyThreshold.setEnabled(True)
+        self.interval.setEnabled(True)
+        self.top.setEnabled(True)
+        self.bottom.setEnabled(True)
+        self.applySymbology.setEnabled(True)
+        self.savelocationText.setEnabled(True)
+        self.saveLocation.setEnabled(True)
 
     def setLayer(self):
         # get the new layer
@@ -92,4 +150,21 @@ class DesirelinesDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()
+        QgsMapLayerRegistry.instance().legendLayersAdded.disconnect(self.updateLayer)
+        QgsMapLayerRegistry.instance().layersRemoved.disconnect(self.updateLayer)
+
+    def selectByRadius(self):
+        if self.selectLayer.count() > 0:
+            self.selectextent.setEnabled(True)
+            self.iface.actionSelectRadius().trigger()
+
+    def saveSelection(self):
+        layer = self.setLayer()
+        selectedLines = processing.runalg('qgis:saveselectedfeatures', layer, None)
+        filename = os.path.basename(selectedLines['OUTPUT_LAYER'])
+        location = os.path.abspath(selectedLines['OUTPUT_LAYER'])
+        result_layer = self.iface.addVectorLayer(location, filename, "ogr")
+        result_layer.setLayerName("memory:Desire Lines")
+
+
 
