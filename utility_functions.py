@@ -79,29 +79,12 @@ def reloadLayer(layer):
         QgsMapLayerRegistry.instance().addMapLayer(new_layer)
     return new_layer
 
-def isRequiredLayer(self, layer, type):
+def isRequiredLayer(self, layer):
     if layer.type() == QgsMapLayer.VectorLayer \
-            and layer.geometryType() == type:
-        fieldlist = getFieldNames(layer)
-        if 'F_Group' in fieldlist and 'F_Type' in fieldlist:
+            and layer.geometryType() == 1:
             return True
 
     return False
 
-def isRequiredEntranceLayer(self, layer, type):
-    if layer.type() == QgsMapLayer.VectorLayer \
-            and layer.geometryType() == type:
-        fieldlist = getFieldNames(layer)
-        if 'E_Category' in fieldlist and 'E_SubCat' in fieldlist:
-            return True
 
-    return False
 
-def isRequiredLULayer(self, layer, type):
-    if layer.type() == QgsMapLayer.VectorLayer \
-            and layer.geometryType() == type:
-        fieldlist = getFieldNames(layer)
-        if 'GF_Cat' in fieldlist and 'GF_SubCat' in fieldlist:
-            return True
-
-    return False

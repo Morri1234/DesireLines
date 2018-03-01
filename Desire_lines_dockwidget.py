@@ -35,7 +35,7 @@ class DesirelinesDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     closingPlugin = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, iface, parent=None):
         """Constructor."""
         super(DesirelinesDockWidget, self).__init__(parent)
         # Set up the user interface from Designer.
@@ -45,44 +45,49 @@ class DesirelinesDockWidget(QtGui.QDockWidget, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
-        selectLayer = self.comboBox()
-        firstMeasure = self.comboBox_2()
-        firstCheck = self.checkBox()
-        firstSpinBox = self.doubleSpinBox()
-        secondMeasure = self.comboBox_3()
-        secondCheck = self.checkBox_2()
-        secondSpinBox = self.doubleSpinBox_2()
-        applyThreshold = self.pushButton()
-        interval = self.spinBox()
-        top = self.doubleSpinBox_4()
-        bottom = self.doubleSpinBox_5()
-        applySymbology = self.pushButton_2()
-        savelocationText = self.lineEdit()
-        saveLocation = self.pushButton_3()
+        # Save reference to the QGIS interface
+        self.iface = iface
+        self.canvas = self.iface.mapCanvas()
+        self.legend = self.iface.legendInterface()
 
+        self.create = self.pushButton_4
+        self.selectLayer = self.comboBox
+        self.firstMeasure = self.comboBox_2
+        self.firstCheck = self.checkBox
+        self.firstSpinBox = self.doubleSpinBox
+        self.secondMeasure = self.comboBox_3
+        self.secondCheck = self.checkBox_2
+        self.secondSpinBox = self.doubleSpinBox_2
+        self.applyThreshold = self.pushButton
+        self.interval = self.spinBox
+        self.top = self.doubleSpinBox_4
+        self.bottom = self.doubleSpinBox_5
+        self.applySymbology = self.pushButton_2
+        self.savelocationText = self.lineEdit
+        self.saveLocation = self.pushButton_3
 
+        self.updateLayer()
 
     def setLayer(self):
         # get the new layer
-        index = self.comboBox().currentIndex()
-        self.selectedLayer = self.comboBox().itemData(index)
+        index = self.selectLayer.currentIndex()
+        self.selectedLayer = self.selectLayer.itemData(index)
         return self.selectedLayer
 
-    # Add Frontage layer to combobox if conditions are satisfied
-    def updateFrontageLayer(self):
-        self.dockwidget.useExistingcomboBox.clear()
-        self.dockwidget.useExistingcomboBox.setEnabled(False)
-        self.disconnectFrontageLayer()
+    # Add  layer to combobox if conditions are satisfied
+    def updateLayer(self):
+        self.selectLayer.clear()
+        self.selectLayer.setEnabled(False)
         layers = self.legend.layers()
-        type = 1
-        for lyr in layers:
-            if uf.isRequiredLayer(self.iface, lyr, type):
-                self.dockwidget.useExistingcomboBox.addItem(lyr.name(), lyr)
 
-        if self.dockwidget.useExistingcomboBox.count() > 0:
-            self.dockwidget.useExistingcomboBox.setEnabled(True)
-            self.frontage_layer = self.dockwidget.setFrontageLayer()
-            self.connectFrontageLayer()
+        for lyr in layers:
+            if uf.isRequiredLayer(self.iface, lyr):
+                self.selectLayer.addItem(lyr.name(), lyr)
+
+        if self.selectLayer.count() > 0:
+            self.selectLayer.setEnabled(True)
+            self.layer = self.setLayer()
+
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
