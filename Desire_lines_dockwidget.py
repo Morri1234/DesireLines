@@ -73,8 +73,10 @@ class DesirelinesDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.updateLayer()
         self.initialisations()
 
+
         QgsMapLayerRegistry.instance().legendLayersAdded.connect(self.updateLayer)
         QgsMapLayerRegistry.instance().layersRemoved.connect(self.updateLayer)
+        QgsMapLayerRegistry.instance().legendLayersAdded.connect(self.initialisations)
         QgsMapLayerRegistry.instance().layersRemoved.connect(self.initialisations)
 
         self.selectextent.clicked.connect(self.selectByRadius)
